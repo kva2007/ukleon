@@ -1,1 +1,37 @@
-<h1>Hello world!</h1>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Оплата через СБП – ООО "Новые решения"</title>
+</head>
+<body>
+  <h1>Оплата через СБП</h1>
+  <form id="pay-form">
+    <label for="amount">Сумма оплаты (₽):</label>
+    <input type="number" id="amount" name="amount" min="1" required>
+    <button type="submit">Получить QR-код</button>
+  </form>
+  <div id="qr-container" style="display:none;">
+    <h2>Сканируйте QR-код в своём банковском приложении</h2>
+    <img id="qr-img" src="" alt="QR-код для оплаты">
+  </div>
+  <script>
+    document.getElementById('pay-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const amount = document.getElementById('amount').value;
+      // Ваша точка backend, которая вызывает API Т-Банка и возвращает base64 QR-код
+      const resp = await fetch('/api/create-sbp', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({amount})
+      });
+      const data = await resp.json();
+      // Предполагается, что ваш backend возвращает {qrImage: "data:image/png;base64,...."}
+      if(data.qrImage){
+        document.getElementById('qr-img').src = data.qrImage;
+        document.getElementById('qr-container').style.display = 'block';
+      }
+    });
+  </script>
+</body>
+</html>
